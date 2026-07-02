@@ -1,0 +1,141 @@
+"""
+Company taxonomy used for recruiter scoring.
+"""
+
+# ==========================================================
+# Product Companies
+# ==========================================================
+
+PRODUCT_COMPANIES = {
+
+    "Google",
+    "Microsoft",
+    "Amazon",
+    "Apple",
+    "Meta",
+    "Netflix",
+    "Adobe",
+    "NVIDIA",
+    "Intel",
+    "Oracle",
+    "Salesforce",
+    "Uber",
+    "Airbnb",
+    "LinkedIn",
+    "Spotify",
+    "Atlassian",
+    "PayPal",
+    "Stripe",
+    "Databricks",
+    "Snowflake",
+    "OpenAI",
+    "Anthropic",
+    "Cohere",
+    "Mistral AI",
+    "Hugging Face",
+    "Tesla",
+    "Samsung",
+    "Qualcomm",
+    "Cisco",
+    "VMware",
+    "SAP",
+    "ServiceNow",
+    "IBM",
+    "Flipkart",
+    "Swiggy",
+    "Zomato",
+    "PhonePe",
+    "Razorpay",
+    "Dream11",
+    "Meesho",
+    "Groww",
+    "CRED",
+    "ShareChat",
+    "Freshworks",
+    "Zoho",
+    "BrowserStack",
+    "Postman",
+}
+
+# ==========================================================
+# Consulting Companies
+# ==========================================================
+
+CONSULTING_FIRMS = {
+
+    "Accenture",
+    "Capgemini",
+    "Cognizant",
+    "Infosys",
+    "TCS",
+    "Wipro",
+    "HCL",
+    "Tech Mahindra",
+    "Deloitte",
+    "EY",
+    "PwC",
+    "KPMG",
+    "LTIMindtree",
+    "Persistent Systems",
+    "Mphasis",
+    "Birlasoft",
+    "Hexaware",
+    "DXC Technology",
+    "Genpact",
+    "EPAM",
+}
+
+# ==========================================================
+# AI First Companies
+# ==========================================================
+
+AI_FIRST_COMPANIES = {
+
+    "OpenAI",
+    "Anthropic",
+    "Cohere",
+    "Mistral AI",
+    "Hugging Face",
+    "Perplexity",
+    "Character AI",
+    "Scale AI",
+    "Adept",
+    "xAI",
+}
+
+# ==========================================================
+# Product Industries
+# ==========================================================
+
+PRODUCT_COMPANY_HINT_INDUSTRIES = {
+
+    "Software",
+    "Internet",
+    "Artificial Intelligence",
+    "Cloud Computing",
+    "SaaS",
+    "Cyber Security",
+    "FinTech",
+    "E-Commerce",
+    "Developer Tools",
+    "Data Platform",
+}
+
+# ==========================================================
+# Senior Non-Coding Titles
+# ==========================================================
+
+NON_CODING_SENIOR_TITLES = {
+
+    "engineering manager",
+    "director",
+    "vice president",
+    "vp",
+    "head of engineering",
+    "head of technology",
+    "chief technology officer",
+    "cto",
+    "delivery manager",
+    "program manager",
+    "project manager",
+}
