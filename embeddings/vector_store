@@ -1,0 +1,257 @@
+import os
+import pickle
+
+import faiss
+import numpy as np
+
+import config
+
+
+class VectorStore:
+
+    def __init__(self):
+
+        self.index = None
+        self.ids = []
+
+    # ---------------------------------------------------------
+    # Create Index
+    # ---------------------------------------------------------
+
+    def build(self, ids, vectors):
+
+        vectors = np.asarray(
+            vectors,
+            dtype=np.float32
+        )
+
+        dimension = vectors.shape[1]
+
+        self.index = faiss.IndexFlatIP(dimension)
+
+        self.index.add(vectors)
+
+        self.ids = ids
+
+        print(f"Indexed {len(ids)} candidates.")
+
+    # ---------------------------------------------------------
+    # Save Index
+    # ---------------------------------------------------------
+
+    def save(self):
+
+        os.makedirs(
+            config.OUTPUT_DIR,
+            exist_ok=True
+        )
+
+        faiss.write_index(
+
+            self.index,
+
+            config.VECTOR_INDEX
+
+        )
+
+        with open(
+
+            config.EMBEDDINGS_FILE,
+
+            "wb"
+
+        ) as f:
+
+            pickle.dump(
+
+                self.ids,
+
+                f
+
+            )
+
+        print("Vector index saved.")
+
+    # ---------------------------------------------------------
+    # Load Index
+    # ---------------------------------------------------------
+
+    def load(self):
+
+        self.index = faiss.read_index(
+
+            config.VECTOR_INDEX
+
+        )
+
+        with open(
+
+            config.EMBEDDINGS_FILE,
+
+            "rb"
+
+        ) as f:
+
+            self.ids = pickle.load(f)
+
+        print(
+
+            f"Loaded {len(self.ids)} vectors."
+
+        )
+
+    # ---------------------------------------------------------
+    # Search
+    # ---------------------------------------------------------
+
+    def search(
+
+        self,
+
+        query_vector,
+
+        top_k=20
+
+    ):
+
+        query_vector = np.asarray(
+
+            query_vector,
+
+            dtype=np.float32
+
+        ).reshape(1, -1)
+
+        scores, indices = self.index.search(
+
+            query_vector,
+
+            top_k
+
+        )
+
+        results = []
+
+        for score, idx in zip(
+
+            scores[0],
+
+            indices[0]
+
+        ):
+
+            if idx == -1:
+                continue
+
+            results.append({
+
+                "candidate_id": self.ids[idx],
+
+                "semantic_score": float(score)
+
+            })
+
+        return results
+
+    # ---------------------------------------------------------
+    # Batch Search
+    # ---------------------------------------------------------
+
+    def batch_search(
+
+        self,
+
+        query_vectors,
+
+        top_k=20
+
+    ):
+
+        query_vectors = np.asarray(
+
+            query_vectors,
+
+            dtype=np.float32
+
+        )
+
+        scores, indices = self.index.search(
+
+            query_vectors,
+
+            top_k
+
+        )
+
+        all_results = []
+
+        for row_scores, row_idx in zip(
+
+            scores,
+
+            indices
+
+        ):
+
+            row = []
+
+            for score, idx in zip(
+
+                row_scores,
+
+                row_idx
+
+            ):
+
+                if idx == -1:
+                    continue
+
+                row.append({
+
+                    "candidate_id": self.ids[idx],
+
+                    "semantic_score": float(score)
+
+                })
+
+            all_results.append(row)
+
+        return all_results
+
+
+# ---------------------------------------------------------
+# Build Vector Database
+# ---------------------------------------------------------
+
+def build_vector_database(
+
+    ids,
+
+    vectors
+
+):
+
+    db = VectorStore()
+
+    db.build(
+
+        ids,
+
+        vectors
+
+    )
+
+    db.save()
+
+    return db
+
+
+# ---------------------------------------------------------
+
+if __name__ == "__main__":
+
+    print(
+
+        "Run embedder.py first."
+
+    )
