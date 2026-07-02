@@ -1,0 +1,236 @@
+from .helpers import full_text_blob
+
+from taxonomy import (
+    PRODUCT_COMPANY_HINT_INDUSTRIES,
+)
+
+
+def trajectory_fit_score(candidate):
+    """
+    Evaluates career trajectory.
+
+    Rewards
+
+    - Stable career
+    - Product company experience
+    - Recent ML work
+
+    Returns
+    -------
+    score
+    flags
+    """
+
+    score = 0.50
+    flags = []
+
+    career = candidate.get("career_history", [])
+
+    # -----------------------------------------
+    # Longest Stable Job
+    # -----------------------------------------
+
+    longest_stint = max(
+
+        (
+            job.get("duration_months", 0)
+
+            for job in career
+        ),
+
+        default=0
+
+    )
+
+    if longest_stint >= 36:
+
+        score += 0.20
+
+        flags.append(
+            "Excellent career stability."
+        )
+
+    elif longest_stint >= 24:
+
+        score += 0.10
+
+        flags.append(
+            "Stable work history."
+        )
+
+    # -----------------------------------------
+    # Product Company Experience
+    # -----------------------------------------
+
+    product_months = sum(
+
+        job.get("duration_months", 0)
+
+        for job in career
+
+        if job.get("industry")
+        in PRODUCT_COMPANY_HINT_INDUSTRIES
+
+    )
+
+    total_months = sum(
+
+        job.get("duration_months", 0)
+
+        for job in career
+
+    )
+
+    if total_months == 0:
+        total_months = 1
+
+    fraction = product_months / total_months
+
+    score += 0.20 * fraction
+
+    if fraction >= 0.60:
+
+        flags.append(
+
+            f"{fraction:.0%} of career spent in product companies."
+
+        )
+
+    # -----------------------------------------
+    # Recent ML Work
+    # -----------------------------------------
+
+    current_text = ""
+
+    profile = candidate.get("profile", {})
+
+    current_text += profile.get(
+        "current_title",
+        ""
+    )
+
+    if career:
+
+        current_text += " "
+
+        current_text += career[0].get(
+            "description",
+            ""
+        )
+
+    current_text = current_text.lower()
+
+    ml_keywords = [
+
+        "machine learning",
+        "ml",
+
+        "retrieval",
+
+        "ranking",
+
+        "recommendation",
+
+        "search",
+
+        "embeddings",
+
+        "nlp",
+
+        "llm",
+
+        "ai engineer",
+
+        "data scientist"
+
+    ]
+
+    if any(
+
+        word in current_text
+
+        for word in ml_keywords
+
+    ):
+
+        score += 0.10
+
+        flags.append(
+
+            "Recent production AI work."
+
+        )
+
+    # -----------------------------------------
+    # Promotion Signal
+    # -----------------------------------------
+
+    titles = [
+
+        job.get("title", "").lower()
+
+        for job in career
+
+    ]
+
+    seniority = [
+
+        "junior",
+
+        "engineer",
+
+        "senior",
+
+        "staff",
+
+        "principal",
+
+        "lead"
+
+    ]
+
+    progression = 0
+
+    for word in seniority:
+
+        if any(word in t for t in titles):
+
+            progression += 1
+
+    if progression >= 3:
+
+        score += 0.05
+
+        flags.append(
+
+            "Healthy career progression."
+
+        )
+
+    # -----------------------------------------
+    # Penalize Frequent Job Hopping
+    # -----------------------------------------
+
+    short_jobs = [
+
+        job
+
+        for job in career
+
+        if job.get("duration_months", 0) < 12
+
+    ]
+
+    if len(short_jobs) >= 3:
+
+        score -= 0.10
+
+        flags.append(
+
+            "Frequent short job tenures."
+
+        )
+
+    score = max(0.0, min(1.0, score))
+
+    return score, flags
