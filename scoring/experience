@@ -1,0 +1,51 @@
+def experience_fit_score(candidate, jd):
+    """
+    Scores the candidate based on years of experience.
+
+    JD should provide:
+
+        jd.exp_min
+        jd.exp_max
+        jd.exp_ideal_min
+        jd.exp_ideal_max
+
+    Returns
+    -------
+    float
+    """
+
+    profile = candidate.get("profile", {})
+
+    years = profile.get("years_of_experience", 0) or 0
+
+    # -----------------------------------------
+    # Ideal Range
+    # -----------------------------------------
+
+    if jd.exp_ideal_min <= years <= jd.exp_ideal_max:
+        return 1.0
+
+    # -----------------------------------------
+    # Acceptable Range
+    # -----------------------------------------
+
+    if jd.exp_min <= years <= jd.exp_max:
+        return 0.85
+
+    # -----------------------------------------
+    # Outside Range
+    # -----------------------------------------
+
+    distance = min(
+
+        abs(years - jd.exp_min),
+
+        abs(years - jd.exp_max)
+
+    )
+
+    score = 0.85 - (0.08 * distance)
+
+    score = max(score, 0.20)
+
+    return score
